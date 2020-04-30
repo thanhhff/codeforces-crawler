@@ -8,7 +8,7 @@ Since the [provided APIs](https://codeforces.com/api/help/objects) of CodeForces
 - [Python 3 or above](https://www.python.org/)
 - [Anaconda](https://www.anaconda.com/)
 
-[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://github.com/thanhhff/codeforces-crawler/)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
 
 # Usage:
 ### Step 0 - Set up the virtual enviroment (Optional)
