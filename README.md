@@ -19,7 +19,7 @@ I will write after finish project.
 
 ### Step 1 - Install all the required dependencies
 ```
-    pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Step 2 - Start crawling
