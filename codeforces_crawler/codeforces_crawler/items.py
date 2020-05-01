@@ -16,3 +16,9 @@ class CodeforcesCrawlerItem(scrapy.Item):
     source_code = scrapy.Field()
     output = scrapy.Field();
     pass
+
+
+class GetlinkContestSpiderItem(scrapy.Item):
+    contest_id = scrapy.Field()
+    contest_name = scrapy.Field()
+    contest_link = scrapy.Field()
