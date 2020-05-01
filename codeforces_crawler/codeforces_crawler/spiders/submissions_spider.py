@@ -2,14 +2,16 @@ import scrapy
 from codeforces_crawler.items import CodeforcesCrawlerItem
 import time
 
+item = CodeforcesCrawlerItem()
+
 
 class SubmissionsSpider(scrapy.Spider):
     name = "cf_submission"
     allowed_domains = ['codeforces.com']
-    start_urls = ['https://codeforces.com/problemset/status/1082/problem/F']
+    start_urls = ['https://codeforces.com/contest/9/status']
 
     # Lựa chọn ngôn ngữ chương trình muốn get về
-    wanted_languages = ['Java 8', 'Python 3', 'GNU C++11', 'Java 7', 'Java 6', 'Python 2']
+    wanted_languages = ['GNU C11']
 
     # Kiểm tra verdict mong muốn
     wanted_verdicts = ['RUNTIME_ERROR', 'OK']
@@ -17,13 +19,18 @@ class SubmissionsSpider(scrapy.Spider):
     def parse(self, response):
         print("Processing: ", response.url)
 
-        id = 0
-
         submission_id_list = response.xpath('//tr/@data-submission-id').extract()
 
         for submission_id in submission_id_list:
-            if (id == 1):
-                break
+
+            submission_user = response.xpath('//tr[@data-submission-id=%s]/td[3]/a/text()' % submission_id)[
+                0].extract().strip()
+
+            submission_problem = response.xpath('//tr[@data-submission-id=%s]/td[4]/a/text()' % submission_id)[
+                0].extract().strip()
+
+            if 'A' not in submission_problem[0] and 'B' not in submission_problem[0]:
+                continue
 
             submission_lang = response.xpath('//tr[@data-submission-id=%s]/td[5]/text()' % submission_id)[
                 0].extract().strip()
@@ -34,40 +41,49 @@ class SubmissionsSpider(scrapy.Spider):
 
             submission_verdict = response.xpath(
                 '//tr[@data-submission-id=%s]/td[6]/span/@submissionverdict' % submission_id)[0].extract().strip()
-            if submission_verdict not in self.wanted_verdicts:
-                continue
+            # if submission_verdict not in self.wanted_verdicts:
+            #     continue
 
             code_link = 'https://codeforces.com' + (response.xpath(
                 '//tr[@data-submission-id=%s]/td[1]/a[contains(@href, "submission")]/@href' % submission_id)[
                                                         0].extract().strip())
 
-            time.sleep(0.1)
-            item = CodeforcesCrawlerItem()
+            # time.sleep(1.5)
             item['submission_id'] = submission_id
+            item['submission_user'] = submission_user
             item['submission_lang'] = submission_lang
             item['submission_verdict'] = submission_verdict
-
-            id += 1
+            item['submission_problem'] = submission_problem
 
             yield scrapy.Request(url=code_link, meta={'item': item},
                                  callback=self.parse_code)
 
-    # Next page code
-    # Todo
+        # time.sleep(1.5)
+        # TODO: generate next-page url
+        if response.selector.xpath('//span[@class="inactive"]/text()').extract():
+            # '\u2192' is the unicode of 'right arrow' symbol
+            if response.selector.xpath('//span[@class="inactive"]/text()')[0].extract() != u'\u2192':
+                next_page_href = response.selector.xpath('//div[@class="pagination"]/ul/li/a[@class="arrow"]/@href')[0]
+                next_page_url = response.urljoin(next_page_href.extract())
+                yield scrapy.Request(next_page_url, meta={'item': item}, callback=self.parse, dont_filter=True)
+        else:
+            next_page_href = response.selector.xpath('//div[@class="pagination"]/ul/li/a[@class="arrow"]/@href')[1]
+            next_page_url = response.urljoin(next_page_href.extract())
+            yield scrapy.Request(next_page_url, meta={'item': item}, callback=self.parse, dont_filter=True)
 
     def parse_code(self, response):
-        source_code = response.xpath('//pre[@id="program-source-text"]/text()').extract()
+        submission_code = response.xpath('//pre[@id="program-source-text"]/text()').extract()
         # print(source_code)
         item = response.meta['item']
-        item['source_code'] = source_code
+        item['submission_code'] = submission_code
 
-        # Xử lý output
-        # Todo
-        from selenium import webdriver
-        driver = webdriver.Chrome("/Users/thanhhff/Google Drive/Thanhhff-Backup/Codeforces-crawler/"
-                                  "chromedriver")
-        driver.get(response.url)
-        full_web = driver.find_element_by_link_text("Click").click()
-        driver.close()
+        # # Xử lý output
+        # # Todo
+        # from selenium import webdriver
+        # driver = webdriver.Chrome("/Users/thanhhff/Google Drive/Thanhhff-Backup/Codeforces-crawler/"
+        #                           "chromedriver")
+        # driver.get(response.url)
+        # full_web = driver.find_element_by_link_text("Click").click()
+        # driver.close()
 
         yield item

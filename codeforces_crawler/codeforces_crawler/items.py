@@ -11,11 +11,13 @@ import scrapy
 class CodeforcesCrawlerItem(scrapy.Item):
     # submissionID
     submission_id = scrapy.Field()
+    submission_code = scrapy.Field()
+    submission_user = scrapy.Field()
+    submission_problem = scrapy.Field()
     submission_lang = scrapy.Field()
     submission_verdict = scrapy.Field()
-    source_code = scrapy.Field()
-    output = scrapy.Field();
-    pass
+
+    # output = scrapy.Field()
 
 
 class GetlinkContestSpiderItem(scrapy.Item):
