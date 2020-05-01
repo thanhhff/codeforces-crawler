@@ -4,6 +4,8 @@ A scrapy-based crawler for all **submissions** (including source code) of any sp
 
 Since the [provided APIs](https://codeforces.com/api/help/objects) of CodeForces is not so strong as Github, I endeavored to process the front-end requests within Codeforces websites. Now the crawler is not limited to API restrictions.  
 
+Tutorial: https://www.datacamp.com/community/tutorials/making-web-crawlers-scrapy-python
+
 **Prerequisites**:  
 - [Python 3 or above](https://www.python.org/)
 - [Anaconda](https://www.anaconda.com/)
