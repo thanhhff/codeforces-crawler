@@ -23,6 +23,9 @@ class SubmissionsSpider(scrapy.Spider):
 
         for submission_id in submission_id_list:
 
+            submission_id_save = response.xpath('//tr[@data-submission-id=%s]/td[1]/a/text()' % submission_id)[
+                0].extract().strip()
+
             submission_user = response.xpath('//tr[@data-submission-id=%s]/td[3]/a/text()' % submission_id)[
                 0].extract().strip()
 
@@ -49,7 +52,7 @@ class SubmissionsSpider(scrapy.Spider):
                                                         0].extract().strip())
 
             # time.sleep(1.5)
-            item['submission_id'] = submission_id
+            item['submission_id'] = submission_id_save
             item['submission_user'] = submission_user
             item['submission_lang'] = submission_lang
             item['submission_verdict'] = submission_verdict
@@ -76,14 +79,5 @@ class SubmissionsSpider(scrapy.Spider):
         # print(source_code)
         item = response.meta['item']
         item['submission_code'] = submission_code
-
-        # # Xử lý output
-        # # Todo
-        # from selenium import webdriver
-        # driver = webdriver.Chrome("/Users/thanhhff/Google Drive/Thanhhff-Backup/Codeforces-crawler/"
-        #                           "chromedriver")
-        # driver.get(response.url)
-        # full_web = driver.find_element_by_link_text("Click").click()
-        # driver.close()
 
         yield item
