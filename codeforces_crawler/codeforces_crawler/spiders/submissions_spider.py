@@ -23,8 +23,8 @@ class SubmissionsSpider(scrapy.Spider):
 
         for submission_id in submission_id_list:
 
-            submission_id_save = response.xpath('//tr[@data-submission-id=%s]/td[1]/a/text()' % submission_id)[
-                0].extract().strip()
+            # submission_id_save = response.xpath('//tr[@data-submission-id=%s]/td[1]/a/text()' % submission_id)[
+            #     0].extract().strip()
 
             submission_user = response.xpath('//tr[@data-submission-id=%s]/td[3]/a/text()' % submission_id)[
                 0].extract().strip()
@@ -52,13 +52,13 @@ class SubmissionsSpider(scrapy.Spider):
                                                         0].extract().strip())
 
             # time.sleep(1.5)
-            item['submission_id'] = submission_id_save
-            item['submission_user'] = submission_user
-            item['submission_lang'] = submission_lang
-            item['submission_verdict'] = submission_verdict
-            item['submission_problem'] = submission_problem
 
-            yield scrapy.Request(url=code_link, meta={'item': item},
+            yield scrapy.Request(url=code_link, meta={'submission_id': submission_id,
+                                                      'submission_user': submission_user,
+                                                      'submission_lang': submission_lang,
+                                                      'submission_verdict': submission_verdict,
+                                                      'submission_problem': submission_problem
+                                                      },
                                  callback=self.parse_code)
 
         # time.sleep(1.5)
@@ -77,7 +77,11 @@ class SubmissionsSpider(scrapy.Spider):
     def parse_code(self, response):
         submission_code = response.xpath('//pre[@id="program-source-text"]/text()').extract()
         # print(source_code)
-        item = response.meta['item']
+        item['submission_id'] = response.meta['submission_id']
+        item['submission_user'] = response.meta['submission_user']
         item['submission_code'] = submission_code
+        item['submission_problem'] = response.meta['submission_problem']
+        item['submission_lang'] = response.meta['submission_lang']
+        item['submission_verdict'] = response.meta['submission_verdict']
 
         yield item
