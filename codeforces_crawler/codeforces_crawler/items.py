@@ -16,7 +16,7 @@ class CodeforcesCrawlerItem(scrapy.Item):
     submission_problem = scrapy.Field()
     submission_lang = scrapy.Field()
     submission_verdict = scrapy.Field()
-
+    contest_id = scrapy.Field()
     # output = scrapy.Field()
 
 
