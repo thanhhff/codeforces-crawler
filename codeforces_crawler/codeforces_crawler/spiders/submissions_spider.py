@@ -34,6 +34,7 @@ class SubmissionsSpider(scrapy.Spider):
     start_urls = []
     task_urls = []
 
+    #
     for info in contest_info[100:102]:
         contest_url = info[1]
         contest_id = info[0]
@@ -64,7 +65,7 @@ class SubmissionsSpider(scrapy.Spider):
             submission_problem = response.xpath('//tr[@data-submission-id=%s]/td[4]/a/text()' % submission_id)[
                 0].extract().strip()
 
-            ###TODO: Xử lý đếm chương trình A và B
+            ###TODO: Processing program count A and B
 
             if 'A' not in submission_problem[0] and 'B' not in submission_problem[0]:
                 continue
