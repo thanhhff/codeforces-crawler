@@ -37,6 +37,6 @@ class CodeforcesCrawlerPipeline:
             writer.writerow(item.values())
 
         if self.items_nums % 100 == 0:
-            print("%d items have been collected." % self.items_nums)
+            print("%d items have been collected.\n" % self.items_nums)
 
         return item
