@@ -15,7 +15,7 @@ class SubmissionsSpider(scrapy.Spider):
     # wanted_languages = ['GNU C11']
 
     # Số lượng tối đa cho mỗi chương trình
-    MAX = 20
+    MAX = 5000
     count_A = 0
     count_B = 0
     count_id = 0
@@ -34,16 +34,17 @@ class SubmissionsSpider(scrapy.Spider):
     start_urls = []
     task_urls = []
 
-    for info in contest_info[100:105]:
+    for info in contest_info[100:102]:
         contest_url = info[1]
         contest_id = info[0]
         filename = str(contest_id) + '.csv'
         with open('crawl-data/contest/' + filename, 'w') as f:
             writer = csv.writer(f)
             writer.writerow(['submit_id', 'user_name', 'code', 'problem', 'lang', 'verdict', 'contest_id'])
-        task_urls.append(contest_url)
+        # task_urls.append(contest_url)
+        start_urls.append(contest_url)
 
-    start_urls.append(task_urls[0])
+    # start_urls.append(task_urls[0])
 
     # def start_requests(self):
     #     return [scrapy.Request(url=url) for url in self.start_urls]
@@ -54,7 +55,7 @@ class SubmissionsSpider(scrapy.Spider):
 
         for submission_id in submission_id_list:
 
-            # if count_A >= self.MAX and count_B >= self.MAX:
+            # if self.count_A >= self.MAX and self.count_B >= self.MAX:
             #     break
 
             submission_user = response.xpath('//tr[@data-submission-id=%s]/td[3]/a/text()' % submission_id)[
@@ -67,12 +68,12 @@ class SubmissionsSpider(scrapy.Spider):
 
             if 'A' not in submission_problem[0] and 'B' not in submission_problem[0]:
                 continue
-            if 'A' in submission_problem[0] and self.count_A < self.MAX:
-                self.count_A += 1
-            elif 'B' in submission_problem[0] and self.count_B < self.MAX:
-                self.count_B += 1
-            else:
-                continue
+            # if 'A' in submission_problem[0] and self.count_A < self.MAX:
+            #     self.count_A += 1
+            # elif 'B' in submission_problem[0] and self.count_B < self.MAX:
+            #     self.count_B += 1
+            # else:
+            #     continue
 
             submission_lang = response.xpath('//tr[@data-submission-id=%s]/td[5]/text()' % submission_id)[
                 0].extract().strip()
@@ -100,22 +101,25 @@ class SubmissionsSpider(scrapy.Spider):
                                                       'submission_lang': submission_lang,
                                                       'submission_verdict': submission_verdict,
                                                       'submission_problem': submission_problem,
-                                                      'contest_id': contest_id
+                                                      'contest_id': contest_id,
+                                                      'dont_redirect': True,
+                                                      'handle_httpstatus_list': [302]
                                                       },
                                  callback=self.parse_code)
 
         time.sleep(0.1)
 
         # TODO: generate next-page url
-        if self.count_A >= self.MAX and self.count_B >= self.MAX:
-            self.count_A = 0
-            self.count_B = 0
-            self.count_id += 1
-            if self.task_urls:
-                yield scrapy.Request(url=self.task_urls[self.count_id], callback=self.parse)
-            #
-            # return
-        elif response.selector.xpath('//span[@class="inactive"]/text()').extract():
+        # if self.count_A >= self.MAX and self.count_B >= self.MAX:
+        #     self.count_A = 0
+        #     self.count_B = 0
+        #     self.count_id += 1
+        #     if self.task_urls:
+        #         yield scrapy.Request(url=self.task_urls[self.count_id], callback=self.parse)
+        #     else:
+        #         exit()
+
+        if response.selector.xpath('//span[@class="inactive"]/text()').extract():
             # '\u2192' is the unicode of 'right arrow' symbol
             if response.selector.xpath('//span[@class="inactive"]/text()')[0].extract() != u'\u2192':
                 next_page_href = \
@@ -137,6 +141,6 @@ class SubmissionsSpider(scrapy.Spider):
         item['submission_lang'] = response.meta['submission_lang']
         item['submission_verdict'] = response.meta['submission_verdict']
         item['contest_id'] = response.meta['contest_id']
-        print("=====================>", self.count_A, self.count_B)
+        print("\n=====================>", self.count_A, self.count_B)
 
         yield item
