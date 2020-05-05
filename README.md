@@ -16,7 +16,7 @@ Tutorial: https://www.datacamp.com/community/tutorials/making-web-crawlers-scrap
 ### Step 0 - Set up the virtual enviroment (Optional)
 This is an optional (but really **recommended**) step.
 ```
-I will write after finish project.
+Use anaconda to create virtual environment.
 ```
 
 ### Step 1 - Install all the required dependencies
@@ -25,7 +25,12 @@ pip install -r requirements.txt
 ```
 
 ### Step 2 - Start crawling
+
 ```
+Crawl content from id in `contest-info.csv` file. (Please check this file!)
+```
+```
+cd codeforces_crawler
 scrapy crawl cf_submission
 ```
 then you are able to restore this crawler with the **same command**, whenever the crawling process is interrupted.
@@ -42,7 +47,6 @@ An scraped entity represents a submission with the structure below:
 | problem_name  | yes          | String | the name of the problem                                                                                                        |
 | problem_url   | no, optional | String | the link url of the problem (yet not crawled)                                                                                       |
 | source_code   | yes          | String | critical, the stringify content of the source code                                                                             |
-| outputs       | yes          | Object | record all the outputs came with this submission (for "RUNTIME_ERROR" submission, the **last output** record the **stack information**) |
 | language      | yes          | String | the programming language of the source code (e.g., "GNU C++11")   |
  
 
