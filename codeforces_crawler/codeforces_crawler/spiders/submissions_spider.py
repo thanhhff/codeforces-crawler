@@ -12,13 +12,13 @@ class SubmissionsSpider(scrapy.Spider):
     allowed_domains = ['codeforces.com']
 
     # Lựa chọn ngôn ngữ chương trình muốn get về
-    # wanted_languages = ['GNU C11']
+    wanted_languages = ['GNU C11']
 
     # Số lượng tối đa cho mỗi chương trình
-    MAX = 5000
-    count_A = 0
-    count_B = 0
-    count_id = 0
+    # MAX = 5000
+    # count_A = 0
+    # count_B = 0
+    # count_id = 0
 
     # Kiểm tra verdict mong muốn
     # wanted_verdicts = ['RUNTIME_ERROR', 'OK']
@@ -32,10 +32,10 @@ class SubmissionsSpider(scrapy.Spider):
             contest_info.append(contest_id_url)
 
     start_urls = []
-    task_urls = []
 
-    #
-    for info in contest_info[100:102]:
+    # task_urls = []
+
+    for info in contest_info[0:1]:
         contest_url = info[1]
         contest_id = info[0]
         filename = str(contest_id) + '.csv'
@@ -59,8 +59,12 @@ class SubmissionsSpider(scrapy.Spider):
             # if self.count_A >= self.MAX and self.count_B >= self.MAX:
             #     break
 
-            submission_user = response.xpath('//tr[@data-submission-id=%s]/td[3]/a/text()' % submission_id)[
-                0].extract().strip()
+            try:
+                submission_user = response.xpath('//tr[@data-submission-id=%s]/td[3]/a/text()' % submission_id)[
+                    0].extract().strip()
+            except:
+                print("False line 65")
+                continue
 
             submission_problem = response.xpath('//tr[@data-submission-id=%s]/td[4]/a/text()' % submission_id)[
                 0].extract().strip()
@@ -80,8 +84,8 @@ class SubmissionsSpider(scrapy.Spider):
                 0].extract().strip()
 
             # Kiểm tra xem có nằm trong các ngôn ngữ mình mong muốn
-            # if submission_lang not in self.wanted_languages:
-            #     continue
+            if submission_lang not in self.wanted_languages:
+                continue
 
             submission_verdict = response.xpath(
                 '//tr[@data-submission-id=%s]/td[6]/span/@submissionverdict' % submission_id)[0].extract().strip()
@@ -102,9 +106,9 @@ class SubmissionsSpider(scrapy.Spider):
                                                       'submission_lang': submission_lang,
                                                       'submission_verdict': submission_verdict,
                                                       'submission_problem': submission_problem,
-                                                      'contest_id': contest_id,
-                                                      'dont_redirect': True,
-                                                      'handle_httpstatus_list': [302]
+                                                      'contest_id': contest_id
+                                                      # 'dont_redirect': True,
+                                                      # 'handle_httpstatus_list': [302]
                                                       },
                                  callback=self.parse_code)
 
@@ -142,6 +146,6 @@ class SubmissionsSpider(scrapy.Spider):
         item['submission_lang'] = response.meta['submission_lang']
         item['submission_verdict'] = response.meta['submission_verdict']
         item['contest_id'] = response.meta['contest_id']
-        print("\n=====================>", self.count_A, self.count_B)
+        # print("\n=====================>", self.count_A, self.count_B)
 
         yield item
